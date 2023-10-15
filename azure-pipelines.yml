@@ -1,0 +1,85 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool: My_Agent
+
+- powershell: |
+    $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/build/definitions/$($env:SYSTEM_DEFINITIONID)?api-version=2.0"
+    Write-Host "URL:" $url
+    $definition = Invoke-RestMethod -Uri $url -Headers @{ Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN" }
+    Write-Host "Pipeline = $($definition | ConvertTo-Json -Depth 100)"
+  env:
+    SYSTEM_ACCESSTOKEN: $(system.accesstoken)
+    
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      ## Only following 5 variables are required to send mail
+      $myorg = “debduttachatterjee09”
+      $myproj = “Test_Pipeline”
+      $sendmailto = “testerdemo1995@gmail.com,debduttachatterjee09@gmail.com” ## comma separated email ids of receivers
+      $mysubject = “my custom subject of the mail” ## Subject of the email
+      $mailbody = “my custom mail body details” ## mail body
+      #########################
+      ## Get tfsids of users whom to send mail
+      $mailusers = “$sendmailto”
+      $mymailusers = $mailusers -split “,”
+      $pat = "Bearer $env:SYSTEM_ACCESSTOKEN"
+      echo "token -> $pat"
+      
+      $myurl =”https://dev.azure.com/${myorg}/_apis/projects/${myproj}/teams?api-version=5.1"
+      $data = Invoke-RestMethod -Uri “$myurl” -Headers @{Authorization = $pat}
+      $myteams = $data.value.id
+      echo "team ->  $myteams"
+
+      ##Get list of members in all teams
+      $myusersarray = @()
+      foreach($myteam in $myteams) {
+      $usrurl = “https://dev.azure.com/${myorg}/_apis/projects/${myproj}/teams/"+$myteam+"/members?api-version=5.1"
+      $userdata = Invoke-RestMethod -Uri “$usrurl” -Headers @{Authorization = $pat}
+      $myusers = $userdata.value
+      foreach($myuser in $myusers) {
+      $myuserid = $myuser.identity.id
+      $myusermail = $myuser.identity.uniqueName
+      $myuserrecord = “$myuserid”+”:”+”$myusermail”
+      $myusersarray += $myuserrecord
+      }
+      }
+      ## filter unique users
+      $myfinalusersaray = $myusersarray | sort -Unique
+      ## create final hash of emails and tfsids
+      $myusershash = @{}
+      for ($i = 0; $i -lt $myfinalusersaray.count; $i++)
+      {
+      $myusershash[$myfinalusersaray[$i].split(“:”)[1]] = $myfinalusersaray[$i].split(“:”)[0]
+      }
+      ##
+      ## create list of tfsid of mailers
+      foreach($mymail in $mymailusers) {
+      $myto = $myto +’”’+$myusershash[$mymail]+’”,’
+      }
+      ##send mail
+      $uri = “https://${myorg}.vsrm.visualstudio.com/${myproj}/_apis/Release/sendmail/$(RELEASE_RELEASENAME)?api-version=3.2-preview.1"
+      $requestBody =
+      @”
+      {
+      “senderType”:1,
+      “to”:{“tfsIds”:[$myto]},
+      “body”:”${mailbody}”,
+      “subject”:”${mysubject}”
+      }
+      “@
+      Try {
+      Invoke-RestMethod -Uri $uri -Body $requestBody -Method POST -Headers @{Authorization = $pat} -ContentType “application/json”
+      }
+      Catch {
+      $_.Exception
+      }
+      env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
