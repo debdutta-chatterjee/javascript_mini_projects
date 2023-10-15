@@ -30,15 +30,19 @@ steps:
       
       # Get recipients data based on ADO group name  
       $uriGetProjectDescriptor = ("https://vssps.dev.azure.com/{0}/_apis/graph/descriptors/{1}" -f $organization, $env:SYSTEM_TEAMPROJECTID)
+      echo $uriGetProjectDescriptor
       $projectDescriptor = (Invoke-RestMethod -Uri $uriGetProjectDescriptor -Method GET -Headers $adoHeader).value
       
       $uriGetGroups = ("https://vssps.dev.azure.com/{0}/_apis/graph/groups?scopeDescriptor={1}" -f $organization, $projectDescriptor)
+      echo  $uriGetGroups
       $group = (Invoke-RestMethod -Uri $uriGetGroups -Method GET -Headers $adoHeader).value | Where-Object { $_.displayname -eq $groupName }
       
       $uriGetMemberships = ("https://vssps.dev.azure.com/{0}/_apis/graph/Memberships/{1}?direction=Down" -f $organization, $group.descriptor)
+      echo $uriGetMemberships
       $memberShipsList = Invoke-RestMethod -Uri $uriGetMemberships -Method GET -Headers $adoHeader
       
       $subjectDescriptors = $memberShipsList.value | Select-Object -Property memberDescriptor | Select-Object -ExpandProperty memberDescriptor
+      echo $subjectDescriptors
       $uriGetMembers = ("https://vssps.dev.azure.com/{0}/_apis/identities?subjectDescriptors={1}&api-version=6.0" -f $organization, $($subjectDescriptors -join ","))
       $members = (Invoke-RestMethod -Uri $uriGetMembers -Method GET -Headers $adoHeader).value
       
