@@ -31,6 +31,8 @@ steps:
       $myurl =”https://dev.azure.com/${myorg}/_apis/projects/${myproj}/teams?api-version=5.1"
       $data = Invoke-RestMethod -Uri “$myurl” -Headers @{Authorization = $pat}
       $myteams = $data.value.id
+      echo "team ->  $myteams"
+
       ##Get list of members in all teams
       $myusersarray = @()
       foreach($myteam in $myteams) {
@@ -58,7 +60,7 @@ steps:
       $myto = $myto +’”’+$myusershash[$mymail]+’”,’
       }
       ##send mail
-      $uri = “https://${myorg}.vsrm.visualstudio.com/${myproj}/_apis/Release/sendmail/$(RELEASE.RELEASEID)?api-version=3.2-preview.1"
+      $uri = “https://${myorg}.vsrm.visualstudio.com/${myproj}/_apis/Release/sendmail/$(RELEASE_RELEASENAME)?api-version=3.2-preview.1"
       $requestBody =
       @”
       {
