@@ -72,7 +72,8 @@ steps:
     Write-Host $myto
 
     ##send mail
-    $uri = “https://${myorg}.vsrm.visualstudio.com/${myproj}/_apis/Release/sendmail/$(Build.BuildId)?api-version=3.2-preview.1"
+    ##$uri = “https://${myorg}.vsrm.visualstudio.com/${myproj}/_apis/Release/sendmail/$(Build.BuildId)?api-version=3.2-preview.1"
+    $uri = https://dev.azure.com/${myorg}/${myproj}/_apis/wit/sendmail?api-version=7.1-preview.1
     $requestBody =
     @”
     {
