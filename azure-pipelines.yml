@@ -44,15 +44,16 @@ steps:
     $userdata = Invoke-RestMethod -Uri $usrurl -Headers @{
       Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"
     }
+    Write-Host $userdata
     $myusers = $userdata.value
     foreach($myuser in $myusers) {
     $myuserid = $myuser.identity.id
     $myusermail = $myuser.identity.uniqueName
-    $myuserrecord = “$myuserid”+”:”+”$myusermail”
+    $myuserrecord = $myuserid+”:”+$myusermail
     $myusersarray += $myuserrecord
     }
     }
-    Write-Host $myusers
+    Write-Host $myusersarray
   
   env:
     SYSTEM_ACCESSTOKEN: $(system.accesstoken)
