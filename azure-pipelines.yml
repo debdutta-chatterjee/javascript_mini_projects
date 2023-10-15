@@ -70,5 +70,26 @@ steps:
     $myto = $myto +’”’+$myusershash[$mymail]+’”,’
     }
     Write-Host $myto
+
+    ##send mail
+    $uri = “https://${myorg}.vsrm.visualstudio.com/${myproj}/_apis/Release/sendmail/$(RELEASE.RELEASEID)?api-version=3.2-preview.1"
+    $requestBody =
+    @”
+    {
+    “senderType”:1,
+    “to”:{“tfsIds”:[$myto]},
+    “body”:”${mailbody}”,
+    “subject”:”${mysubject}”
+    }
+    “@
+    Try {
+    Invoke-RestMethod -Uri $uri -Body $requestBody -Method POST -Headers @{
+      Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"
+    } -ContentType “application/json”
+    }
+    Catch {
+    $_.Exception
+    }
+
   env:
     SYSTEM_ACCESSTOKEN: $(system.accesstoken)
