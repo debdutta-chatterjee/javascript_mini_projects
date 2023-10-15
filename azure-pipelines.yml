@@ -6,7 +6,11 @@
 trigger:
 - main
 
-pool:My_Agent
+pool: My_Agent
+
+steps:
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
 - task: PowerShell@2
   inputs:
     targetType: 'inline'
