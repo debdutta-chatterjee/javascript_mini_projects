@@ -15,6 +15,7 @@ pool: My_Agent
     Write-Host "Pipeline = $($definition | ConvertTo-Json -Depth 100)"
   env:
     SYSTEM_ACCESSTOKEN: $(system.accesstoken)
+    
 - task: PowerShell@2
   inputs:
     targetType: 'inline'
