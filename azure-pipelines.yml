@@ -11,61 +11,69 @@ pool: My_Agent
 steps:
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
+
 - task: PowerShell@2
   inputs:
     targetType: 'inline'
     script: |
-      $OrganizationName = "debduttachatterjee09"
-      $ProjectName = "Test_Pipeline"
-      $sendmailto = "debduttachatterjee09@gmail.com,testerdemo1995@gmail.com"
-      $mysubject = "Test Mail Subjcet"
-      $PAT="wabnqnner2wsrwa3vd3irlgz2gxhiep2ykteaxuupi7s3lgwyuhq"
-      $encodedCreds = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$PAT"))
+      # Required variables
+      $env:SYSTEM_ACCESSTOKEN
+      $env:SYSTEM_TEAMFOUNDATIONSERVERURI 
+      $env:SYSTEM_TEAMPROJECTID
+      $env:SYSTEM_TEAMPROJECT 
+      $groupName
+      $workItemId
       
-      $HeaderMail = @{
-          Authorization = "Basic $encodedCreds"
+      # Derived variables
+      $adoHeader = @{Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$env:SYSTEM_ACCESSTOKEN")) }
+      $organization = ($env:SYSTEM_TEAMFOUNDATIONSERVERURI -split "/")[3]
+      
+      # Get recipients data based on ADO group name  
+      $uriGetProjectDescriptor = ("https://vssps.dev.azure.com/{0}/_apis/graph/descriptors/{1}" -f $organization, $env:SYSTEM_TEAMPROJECTID)
+      $projectDescriptor = (Invoke-RestMethod -Uri $uriGetProjectDescriptor -Method GET -Headers $adoHeader).value
+      
+      $uriGetGroups = ("https://vssps.dev.azure.com/{0}/_apis/graph/groups?scopeDescriptor={1}" -f $organization, $projectDescriptor)
+      $group = (Invoke-RestMethod -Uri $uriGetGroups -Method GET -Headers $adoHeader).value | Where-Object { $_.displayname -eq $groupName }
+      
+      $uriGetMemberships = ("https://vssps.dev.azure.com/{0}/_apis/graph/Memberships/{1}?direction=Down" -f $organization, $group.descriptor)
+      $memberShipsList = Invoke-RestMethod -Uri $uriGetMemberships -Method GET -Headers $adoHeader
+      
+      $subjectDescriptors = $memberShipsList.value | Select-Object -Property memberDescriptor | Select-Object -ExpandProperty memberDescriptor
+      $uriGetMembers = ("https://vssps.dev.azure.com/{0}/_apis/identities?subjectDescriptors={1}&api-version=6.0" -f $organization, $($subjectDescriptors -join ","))
+      $members = (Invoke-RestMethod -Uri $uriGetMembers -Method GET -Headers $adoHeader).value
+      
+      $emailAddresses = @()
+      $tfIds = @()
+      foreach ($member in $members) {
+          $emailAddresses += $member.properties.Mail.'$value'
+          $tfIds += $member.id
       }
       
-      #Get the tfsid
-      
-      $userentitlementurl = "https://vsaex.dev.azure.com/${OrganizationName}/_apis/userentitlements?api-version=7.1-preview.1"
-      
-      $response = Invoke-RestMethod -Uri $userentitlementurl -Method Get -Headers $HeaderMail
-      
-      #Filter by sendmailto
-      $tfsid = ($response.value| where {$_.user.mailAddress -eq $sendmailto}).id
-      
-      Write-Host $tfsid
-      
-      ##send mail
-      $urimail = "https://vsrm.dev.azure.com/${OrganizationName}/${ProjectName}/_apis/Release/sendmail/168?api-version=7.1-preview.1"
-      $requestBody =
-      @"
-      {
-          "senderType": 1,
-          "to": {
-              "tfsIds": [
-                  "$tfsid"
-              ],
-              "emailAddresses": []
-          },
-          "subject": "$mysubject",
-          "sections": [
-              5,
-              0,
-              1,
-              2,
-              4
-          ]
+      # Prepare email body
+      $requestBody = @{ 
+          message   = @{
+              to      = @{
+                  emailAddresses = $emailAddresses
+                  tfIds          = $tfIds
+              }
+              cc      = @{}
+              replyTo = @{}
+              body    = "This is a test mail"
+              subject = "[Azure DevOps] Test mail"
+          }
+          projectId = $env:SYSTEM_TEAMPROJECTID
+          ids       = @($workItemId)
       }
-      "@
-      Try {
-      Invoke-RestMethod -Uri $urimail -Body $requestBody -Method POST -ContentType "application/json" -Headers $HeaderMail
+      
+      $arguments = @{
+          Uri         = ("{0}{1}/_apis/wit/sendmail?api-version=7.0" -f $env:SYSTEM_TEAMFOUNDATIONSERVERURI, $env:SYSTEM_TEAMPROJECT)
+          Method      = 'POST' 
+          Headers     = $adoHeader 
+          Body        = ConvertTo-Json -InputObject $requestBody -Depth 5
+          ContentType = 'application/json; charset=utf-8'
+      
       }
-      Catch {
-      $_.Exception
-      }
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+      
+      # Send mail
+      Invoke-RestMethod @arguments
+      
