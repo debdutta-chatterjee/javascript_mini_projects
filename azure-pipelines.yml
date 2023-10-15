@@ -13,10 +13,28 @@ steps:
 - powershell: |
     Write-Host "Bearer $env:SYSTEM_ACCESSTOKEN"
     $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/build/definitions/$($env:SYSTEM_DEFINITIONID)?api-version=4.1-preview"
-    Write-Host "URL: $url"
+    ##Write-Host "URL: $url"
     $pipeline = Invoke-RestMethod -Uri $url -Headers @{
       Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"
     }
-    Write-Host "Pipeline = $($pipeline | ConvertTo-Json -Depth 100)"
+    ##Write-Host "Pipeline = $($pipeline | ConvertTo-Json -Depth 100)"
+
+    ## Variables to send mail
+    $myorg = “debduttachatterjee09”
+    $myproj = “Test_Pipeline”
+    $sendmailto = “devbduttachatterjee09@gmail.com” ## comma separated email ids of receivers
+    $mysubject = “my custom subject of the mail” ## Subject of the email
+    $mailbody = “my custom mail body details” ## mail body
+
+    ## Get tfsids of users whom to send mail
+    $mailusers = “$sendmailto”
+    $mymailusers = $mailusers -split “,”
+    $pat = “Bearer $env:System_AccessToken”
+    $myurl =”https://dev.azure.com/${myorg}/_apis/projects/${myproj}/teams?api-version=5.1"
+    $data = Invoke-RestMethod -Uri $myurl -Headers @{
+      Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"
+    }
+    $myteams = $data.value.id
+    Write-Host $myteams
   env:
     SYSTEM_ACCESSTOKEN: $(system.accesstoken)
