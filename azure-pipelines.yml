@@ -27,10 +27,10 @@ steps:
       $mymailusers = $mailusers -split “,”
       $pat = “wabnqnner2wsrwa3vd3irlgz2gxhiep2ykteaxuupi7s3lgwyuhq”
       $encodedCreds = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$PAT"))
-      
+      $Authorization = "Basic $encodedCreds"
 
       $myurl =”https://dev.azure.com/${myorg}/_apis/projects/${myproj}/teams?api-version=5.1"
-      $data = Invoke-RestMethod -Uri “$myurl” -Headers @{Authorization = $encodedCreds}
+      $data = Invoke-RestMethod -Uri “$myurl” -Headers @{Authorization = $Authorization}
       $myteams = $data.value.id
       ##Get list of members in all teams
       $myusersarray = @()
