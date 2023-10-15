@@ -30,7 +30,7 @@ steps:
       
 
       $myurl =”https://dev.azure.com/${myorg}/_apis/projects/${myproj}/teams?api-version=5.1"
-      $data = Invoke-RestMethod -Uri “$myurl” -Headers @{Authorization = $pat}
+      $data = Invoke-RestMethod -Uri “$myurl” -Headers @{Authorization = $encodedCreds}
       $myteams = $data.value.id
       ##Get list of members in all teams
       $myusersarray = @()
