@@ -16,7 +16,7 @@ steps:
     targetType: 'inline'
     script: |
       ## Only following 5 variables are required to send mail
-      $myorg = “Test_Pipeline”
+      $myorg = “debduttachatterjee09”
       $myproj = “Test_Pipeline”
       $sendmailto = “testerdemo1995@gmail.com,debduttachatterjee09@gmail.com” ## comma separated email ids of receivers
       $mysubject = “my custom subject of the mail” ## Subject of the email
