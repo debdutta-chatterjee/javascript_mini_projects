@@ -32,11 +32,13 @@ steps:
       $uriGetProjectDescriptor = ("https://vssps.dev.azure.com/{0}/_apis/graph/descriptors/{1}" -f $organization, $env:SYSTEM_TEAMPROJECTID)
       echo $uriGetProjectDescriptor
       $projectDescriptor = (Invoke-RestMethod -Uri $uriGetProjectDescriptor -Method GET -Headers $adoHeader).value
-      
+      echo $projectDescriptor
+
       $uriGetGroups = ("https://vssps.dev.azure.com/{0}/_apis/graph/groups?scopeDescriptor={1}" -f $organization, $projectDescriptor)
       echo  $uriGetGroups
       $group = (Invoke-RestMethod -Uri $uriGetGroups -Method GET -Headers $adoHeader).value | Where-Object { $_.displayname -eq $groupName }
-      
+      echo $group
+
       $uriGetMemberships = ("https://vssps.dev.azure.com/{0}/_apis/graph/Memberships/{1}?direction=Down" -f $organization, $group.descriptor)
       echo $uriGetMemberships
       $memberShipsList = Invoke-RestMethod -Uri $uriGetMemberships -Method GET -Headers $adoHeader
