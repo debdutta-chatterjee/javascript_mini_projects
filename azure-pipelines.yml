@@ -84,10 +84,11 @@ steps:
     }
     “@
     Try {
-    Invoke-RestMethod -Uri $uri -Body $requestBody -Method POST -Headers @{
+    $data =Invoke-RestMethod -Uri $uri -Body $requestBody -Method POST -Headers @{
       Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"
     } -ContentType “application/json”
     }
+    Write-Host $data
     Catch {
     $_.Exception
     }
