@@ -76,3 +76,5 @@ steps:
       Catch {
       $_.Exception
       }
+      env:
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)
