@@ -6,6 +6,8 @@
 trigger:
 - main
 
+pool: My_Agent
+
 steps:
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
