@@ -26,6 +26,9 @@ steps:
       $mailusers = “$sendmailto”
       $mymailusers = $mailusers -split “,”
       $pat = “wabnqnner2wsrwa3vd3irlgz2gxhiep2ykteaxuupi7s3lgwyuhq”
+      $encodedCreds = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$PAT"))
+      
+
       $myurl =”https://dev.azure.com/${myorg}/_apis/projects/${myproj}/teams?api-version=5.1"
       $data = Invoke-RestMethod -Uri “$myurl” -Headers @{Authorization = $pat}
       $myteams = $data.value.id
