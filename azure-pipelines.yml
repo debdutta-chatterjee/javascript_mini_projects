@@ -40,11 +40,14 @@ steps:
       $uriGetMemberships = ("https://vssps.dev.azure.com/{0}/_apis/graph/Memberships/{1}?direction=Down" -f $organization, $group.descriptor)
       echo $uriGetMemberships
       $memberShipsList = Invoke-RestMethod -Uri $uriGetMemberships -Method GET -Headers $adoHeader
-      
+      echo $memberShipsList
+
       $subjectDescriptors = $memberShipsList.value | Select-Object -Property memberDescriptor | Select-Object -ExpandProperty memberDescriptor
       echo $subjectDescriptors
       $uriGetMembers = ("https://vssps.dev.azure.com/{0}/_apis/identities?subjectDescriptors={1}&api-version=6.0" -f $organization, $($subjectDescriptors -join ","))
+      echo $uriGetMembers
       $members = (Invoke-RestMethod -Uri $uriGetMembers -Method GET -Headers $adoHeader).value
+      echo  $members
       
       $emailAddresses = @()
       $tfIds = @()
