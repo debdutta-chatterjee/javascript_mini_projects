@@ -54,6 +54,21 @@ steps:
     }
     }
     Write-Host $myusersarray
-  
+
+    ## filter unique users
+    $myfinalusersaray = $myusersarray | sort -Unique
+    Write-Host $myfinalusersaray
+    ## create final hash of emails and tfsids
+    $myusershash = @{}
+    for ($i = 0; $i -lt $myfinalusersaray.count; $i++)
+    {
+    $myusershash[$myfinalusersaray[$i].split(“:”)[1]] = $myfinalusersaray[$i].split(“:”)[0]
+    }
+    ##
+    ## create list of tfsid of mailers
+    foreach($mymail in $mymailusers) {
+    $myto = $myto +’”’+$myusershash[$mymail]+’”,’
+    }
+    Write-Host $myto
   env:
     SYSTEM_ACCESSTOKEN: $(system.accesstoken)
