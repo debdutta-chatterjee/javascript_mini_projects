@@ -26,8 +26,10 @@ steps:
       $mailusers = “$sendmailto”
       $mymailusers = $mailusers -split “,”
       $pat = “Bearer $env:System_AccessToken”
+      $adoHeader = @{Authorization = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$env:SYSTEM_ACCESSTOKEN")) }
+      echo $adoHeader
       $myurl =”https://dev.azure.com/${myorg}/_apis/projects/${myproj}/teams?api-version=5.1"
-      $data = Invoke-RestMethod -Uri “$myurl” -Headers @{Authorization = $pat}
+      $data = Invoke-RestMethod -Uri “$myurl” -Headers =   $adoHeader  ##@{Authorization = $pat}
       $myteams = $data.value.id
       echo $myteams
 
