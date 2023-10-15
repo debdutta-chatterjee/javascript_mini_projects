@@ -25,16 +25,11 @@ steps:
       ## Get tfsids of users whom to send mail
       $mailusers = “$sendmailto”
       $mymailusers = $mailusers -split “,”
-      $pat = “wabnqnner2wsrwa3vd3irlgz2gxhiep2ykteaxuupi7s3lgwyuhq”
-      $encodedCreds = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$PAT"))
-      $pat = “Bearer $pat”  ##"Basic $encodedCreds"
-      echo $pat
-
+      $pat = “Bearer $env:System_AccessToken”
       $myurl =”https://dev.azure.com/${myorg}/_apis/projects/${myproj}/teams?api-version=5.1"
       $data = Invoke-RestMethod -Uri “$myurl” -Headers @{Authorization = $pat}
       $myteams = $data.value.id
-      echo $myteams
-
+      
       ##Get list of members in all teams
       $myusersarray = @()
       foreach($myteam in $myteams) {
@@ -62,7 +57,7 @@ steps:
       $myto = $myto +’”’+$myusershash[$mymail]+’”,’
       }
       ##send mail
-      $uri = “https://${myorg}.vsrm.visualstudio.com/${myproj}/_apis/Release/sendmail/1?api-version=3.2-preview.1"
+      $uri = “https://${myorg}.vsrm.visualstudio.com/${myproj}/_apis/Release/sendmail/$(RELEASE.RELEASEID)?api-version=3.2-preview.1"
       $requestBody =
       @”
       {
@@ -78,4 +73,3 @@ steps:
       Catch {
       $_.Exception
       }
-      How to run
