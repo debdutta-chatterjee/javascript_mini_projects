@@ -11,6 +11,7 @@ pool: My_Agent
 
 steps:
 - powershell: |
+    Write-Host "Bearer $env:SYSTEM_ACCESSTOKEN"
     $url = "$($env:SYSTEM_TEAMFOUNDATIONCOLLECTIONURI)$env:SYSTEM_TEAMPROJECTID/_apis/build/definitions/$($env:SYSTEM_DEFINITIONID)?api-version=4.1-preview"
     Write-Host "URL: $url"
     $pipeline = Invoke-RestMethod -Uri $url -Headers @{
