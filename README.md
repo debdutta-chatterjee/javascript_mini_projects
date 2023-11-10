@@ -3,6 +3,13 @@
 #### *A code repo for javascript mini projects*
 
 ---
++ ## Expanding cards
+
+        Expanding & collapsing cards
+
++ ## Hidden Search
+
+        Hidden search widget
 
 + ## Color chooser
 
