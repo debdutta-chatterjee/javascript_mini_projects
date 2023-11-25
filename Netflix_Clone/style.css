@@ -71,10 +71,18 @@ nav button {
     text-align: center;
 }
 
-.hero> :nth-child(2) {
+.hero> :nth-child(2){
     font-weight: 400;
     font-size: 24px;
     text-align: center;
+}
+
+.section-text {
+    font-weight: 400;
+    font-size: 20px;
+    text-align: center;
+    margin-left: 22%;
+    margin-bottom: 30px;
 }
 
 .hero> :nth-child(3) {
@@ -114,7 +122,7 @@ nav button {
     font-weight: 400;
 }
 
-.main input {
+.main input, .section-buttons input {
     padding: 7px 101px 8px 14px;
     color: white;
     font-size: 12px;
@@ -122,7 +130,7 @@ nav button {
     background-color: rgba(23, 23, 23, 0.7);
     border: 1px solid rgba(246, 238, 238, 0.5);
 }
-.hero-buttons{
+.hero-buttons, .section-buttons{
     display: flex;
     align-items: center;
     justify-content: center;
@@ -144,7 +152,6 @@ nav button {
 }
 
 .section-image img{
-    width: 455px;
     position: relative;
     z-index: 10;
     width: 100%;
@@ -153,7 +160,15 @@ nav button {
 
 .section-image video{
     position: absolute;
-    width: 455px;
+    width: 75%;
+}
+
+.section-third .section-image video{
+    position: absolute;
+    width: 55%;
+    top:20%;
+    overflow: hidden;
+    zoom: 50%;
 }
 
 .section>div {
@@ -198,7 +213,7 @@ nav button {
 .faq {
     background: black;
     color: white;
-    padding: 34px;
+    padding: 30px;
 }
 
 .faqbox:hover {
@@ -216,13 +231,13 @@ nav button {
     display: flex;
     justify-content: space-between;
     background-color: #2d2d2d;
-    padding: 24px;
+    padding: 10px;
     max-width: 60vw;
-    margin: 34px auto;
+    margin: 10px 20%;
     cursor: pointer;
 }
 footer {
-    color: white;
+    color: rgba(255,255,255,0.7);
     max-width: 60vw;
     margin: auto;
     padding: 60px;
@@ -236,7 +251,7 @@ footer .questions {
 .footer {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    color: white;
+    color: rgba(255,255,255,0.7);
 }
 @media screen and (max-width: 1300px) {
 
@@ -307,7 +322,7 @@ footer .questions {
 
 .footer a {
     font-size: 14px;
-    color: white;
+    color: rgba(255,255,255,0.7);
 }
 
 .footer-item {
