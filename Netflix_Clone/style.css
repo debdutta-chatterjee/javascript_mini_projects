@@ -259,15 +259,15 @@ footer .questions {
         max-width: 90vw;
     }
 
-    .first {
+    .section {
         flex-wrap: wrap;
     }
 
-    .secImg img {
+    .section-image img {
         width: 305px;
     }
 
-    .secImg video {
+    .section-image video {
         width: 305px;
     }
 
